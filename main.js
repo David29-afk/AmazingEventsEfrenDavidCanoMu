@@ -225,13 +225,13 @@ function pintarCheckbox(eventos) {
             `;
 
             checkboxDiv.querySelector('input').addEventListener('change', () => {
-                // Obtener categorías seleccionadas
+                
                 let categoriasSeleccionadas = categorias.filter(cat => {
                     return document.getElementById(`checkbox-${cat}`).checked;
                 });
 
 
-                // Filtrar eventos por categoría seleccionada
+                
                 let eventosFiltrados = eventos.filter(evento => {
                     return categoriasSeleccionadas.includes(evento.category);
                 });
@@ -240,7 +240,6 @@ function pintarCheckbox(eventos) {
                     eventosFiltrados = eventos;
                 }
 
-                // Aplicar también el filtro por texto si hay texto en el buscador
                 let textoBusqueda = filtrobuscar.value.trim();
                 pintarTargetas(eventosFiltrados, textoBusqueda);
 
@@ -291,23 +290,36 @@ pintarTargetas(eventos)
 
 
 
+function mostrarMensajeSinResultados() {
+    let contenedor = document.getElementById("card1");
+    contenedor.innerHTML = '<p class="text-muted">No se encontraron eventos que coincidan con la búsqueda.</p>';
+}
+
+
+
+
 
     let filtrobuscar = document.getElementById('buscador');
 
 filtrobuscar.addEventListener('keyup', (e) => {
     let textoBusqueda = e.target.value.trim();
-    pintarTargetas(eventos, textoBusqueda);
+  
+    actualizarVista(eventos, textoBusqueda);
+    
 });
 
 
 
+function actualizarVista(eventos, textoBusqueda) {
+   
+    let eventosFiltrados = eventos.filter(evento => {
+        return evento.name.toLowerCase().includes(textoBusqueda.toLowerCase()) || evento.description.toLowerCase().includes(textoBusqueda.toLowerCase());
+    });
+     
+     if (eventosFiltrados.length > 0) {
+        pintarTargetas(eventosFiltrados);
+    } else {
+        mostrarMensajeSinResultados();
+    }
+    }
 
-
-
-// let filtrobuscar = document.getElementById ('buscador')
-
-//     filtrobuscar.addEventListener ('keyup', (e) =>{
-//         console.log(e.target.value);
-
-        
-//     })

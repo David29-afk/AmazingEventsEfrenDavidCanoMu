@@ -199,38 +199,120 @@ const data = {
 
 let eventos = data.events;
 
+function pintarCheckbox(eventos) {
+    let categorias = []; 
+    let containercheck = document.getElementById("contenedorcheck");
 
-console.log(eventos);
-
-for (let i = 0; i < eventos.length; i++) {
-    const evento = eventos[i];
-
-   if (data.currentDate >= evento.date){
-    pintarTargetas(evento);
-   }
-   
-   function pintarTargetas(evento) {
+    eventos.forEach(evento => {
+        if (!categorias.includes(evento.category)) {
+            categorias.push(evento.category);
+            
         
-    let contenedor = document.getElementById("card1");
-    console.log("Contenedor:", contenedor);
+            let checkboxDiv = document.createElement('div');
+            checkboxDiv.className = "form-check form-check-inline";
 
-    let targeta = document.createElement ('div');
-    targeta.className = "etiqueta1 card-group mb-4 col-lg-3 col-md-6";
-    targeta.innerHTML = `<div class="card">
-                            <img class="targetImg" src="${evento.image}" alt="...">
-                            <div class="card-body d-flex flex-column">
-                                <h5 class="card-title">${evento.name}</h5>
-                                <p class="card-text flex-grow-1">${evento.description}</p>
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span>Price: ${evento.price}</span>
-                                    <a href="./Details.html" class="btn btn-primary">Details</a>
-                                </div>
-                            </div>
-                        </div>`;
+            checkboxDiv.innerHTML = `
+                <input class="form-check-input" type="checkbox" value="${evento.category}" id="checkbox-${evento.category}">
+                <label class="form-check-label" for="checkbox-${evento.category}">
+                    ${evento.category}
+                </label>
+            `;
 
-    contenedor.appendChild(targeta);
-}
+            checkboxDiv.querySelector('input').addEventListener('change', () => {
+                
+                let categoriasSeleccionadas = categorias.filter(cat => {
+                    return document.getElementById(`checkbox-${cat}`).checked;
+                });
 
+
+                
+                let eventosFiltrados = eventos.filter(evento => {
+                    return categoriasSeleccionadas.includes(evento.category);
+                });
+
+                if (categoriasSeleccionadas.length === 0) {
+                    eventosFiltrados = eventos;
+                }
+
+                let textoBusqueda = filtrobuscar.value.trim();
+                pintarTargetas(eventosFiltrados, textoBusqueda);
+
+
+                
+            });
+
+
+            
+            containercheck.appendChild(checkboxDiv);
+        }
+    });
    
-    
 }
+
+
+
+function pintarTargetas(eventos, filtroTexto = '') {
+    
+    let contenedor = document.getElementById("card1");
+        contenedor.innerHTML = ''; // Limpiar contenido anterior
+
+    eventos.forEach(evento => {
+        
+        if (data.currentDate >= evento.date && evento.name.toLowerCase().includes(filtroTexto.toLowerCase()) && evento.description.toLowerCase().includes(filtroTexto.toLowerCase())) {
+        let targeta = document.createElement('div');
+        targeta.className = "etiqueta1 card-group mb-4 col-lg-3 col-md-6";
+        targeta.innerHTML = `<div class="card">
+                                <img class="targetImg" src="${evento.image}" alt="...">
+                                <div class="card-body d-flex flex-column">
+                                    <h5 class="card-title nombre">${evento.name}</h5>
+                                    <p class="card-text flex-grow-1 descripcion">${evento.description}</p>
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span>Price: ${evento.price}</span>
+                                        <a href="./Details.html" class="btn btn-primary">Details</a>
+                                    </div>
+                                </div>
+                            </div>`;
+
+        contenedor.appendChild(targeta);
+        }
+    });
+}
+
+
+pintarCheckbox(eventos);
+pintarTargetas(eventos)
+
+
+
+function mostrarMensajeSinResultados() {
+    let contenedor = document.getElementById("card1");
+    contenedor.innerHTML = '<p class="text-muted">No se encontraron eventos que coincidan con la búsqueda.</p>';
+}
+
+
+
+
+
+    let filtrobuscar = document.getElementById('buscador');
+
+filtrobuscar.addEventListener('keyup', (e) => {
+    let textoBusqueda = e.target.value.trim();
+  
+    actualizarVista(eventos, textoBusqueda);
+    
+});
+
+
+
+function actualizarVista(eventos, textoBusqueda) {
+   
+    let eventosFiltrados = eventos.filter(evento => {
+        return evento.name.toLowerCase().includes(textoBusqueda.toLowerCase()) || evento.description.toLowerCase().includes(textoBusqueda.toLowerCase());
+    });
+     
+     if (eventosFiltrados.length > 0) {
+        pintarTargetas(eventosFiltrados);
+    } else {
+        mostrarMensajeSinResultados();
+    }
+    }
